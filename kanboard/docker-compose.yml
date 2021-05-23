@@ -32,7 +32,7 @@ services:
       MYSQL_DATABASE: ${DB_NAME}
     command: ["--max-allowed-packet=128M", "--innodb-log-file-size=64M"]
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-u", "root", "--password=owncloud"]
+      test: [ "CMD","mysqladmin","ping","-u","root","--password=${DB_ROOT_PASSWORD}"]
       interval: 15s
       timeout: 15s
       retries: 3

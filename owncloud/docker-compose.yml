@@ -1,0 +1,71 @@
+version: "3"
+
+networks:
+  owncloud:
+
+services:
+  owncloud:
+    image: owncloud/server:10.7
+    container_name: owncloud_server
+    restart: unless-stopped
+    ports:
+      - 1080:8080
+    depends_on:
+      - mariadb
+      - redis
+    environment:
+      OWNCLOUD_DOMAIN: ${SERVER_DOMAIN}
+      OWNCLOUD_DB_TYPE: "mysql"
+      OWNCLOUD_DB_NAME: ${DB_NAME}
+      OWNCLOUD_DB_USERNAME: ${DB_USERNAME}
+      OWNCLOUD_DB_PASSWORD: ${DB_PASSWORD}
+      OWNCLOUD_DB_HOST: "mariadb"
+      OWNCLOUD_ADMIN_USERNAME: ${SERVER_ADMIN_USERNAME}
+      OWNCLOUD_ADMIN_PASSWORD: ${SERVER_ADMIN_PASSWORD}
+      OWNCLOUD_MYSQL_UTF8MB4: "true"
+      OWNCLOUD_REDIS_ENABLED: "true"
+      OWNCLOUD_REDIS_HOST: "redis"
+    healthcheck:
+      test: ["CMD", "/usr/bin/healthcheck"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    volumes:
+      - ./owncloud/data:/mnt/data
+    networks:
+      - owncloud
+
+  mariadb:
+    image: mariadb:10.5
+    container_name: owncloud_mariadb
+    restart: unless-stopped
+    environment:
+      - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
+      - MYSQL_USER=${DB_USERNAME}
+      - MYSQL_PASSWORD=${DB_PASSWORD}
+      - MYSQL_DATABASE=${DB_NAME}
+    command: ["--max-allowed-packet=128M", "--innodb-log-file-size=64M"]
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-u", "root", "--password=owncloud"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - ./mariadb/data:/var/lib/mysql
+    networks:
+      - owncloud
+
+  redis:
+    image: redis:6.2-buster
+    container_name: owncloud_redis
+    restart: unless-stopped
+    command: ["--databases", "1"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - ./redis/data:/data
+    networks:
+      - owncloud

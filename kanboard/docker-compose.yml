@@ -1,0 +1,43 @@
+version: '3'
+
+networks:
+  kanboard:
+
+services:
+  
+  kanboard:
+    image: kanboard/kanboard:nightly
+    container_name: kanboard_server
+    restart: unless-stopped
+    depends_on:
+      - mariadb
+    ports:
+      - "1081:80"
+    volumes:
+      - ./kanboard/data:/var/www/app/data
+      - ./kanboard/plugins:/var/www/app/plugins
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+    networks:
+      - kanboard
+
+  mariadb:
+    image: mariadb:10.5
+    container_name: kanboard_mariadb
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+    command: ["--max-allowed-packet=128M", "--innodb-log-file-size=64M"]
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-u", "root", "--password=owncloud"]
+      interval: 15s
+      timeout: 15s
+      retries: 3
+    volumes:
+      - ./mariadb/data:/var/lib/mysql
+    networks:
+      - kanboard
+

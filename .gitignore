@@ -1,4 +1,7 @@
 .env
 /kanboard/kanboard/
 /kanboard/mariadb/
+/owncloud/owncloud/
+/owncloud/mariadb/
+/owncloud/redis/
 

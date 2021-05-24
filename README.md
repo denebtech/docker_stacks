@@ -22,3 +22,11 @@ teams work on data easily from anywhere, on any device.
 - [Creating Users](https://github.com/hackmdio/codimd/blob/master/bin/manage_users)
 - [Manage Note Permission](https://hackmd.io/@codimd/note-permission#Manage-Note-Permission)
 
+## Ghost
+
+The world's most popular modern publishing platform for creating a new media platform. Used by Apple,
+SkyNews, Buffer, OpenAI, and thousands more.
+
+- [Documentation](https://ghost.org/docs/)
+- [Docker images](https://hub.docker.com/_/ghost)
+

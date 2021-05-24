@@ -1,0 +1,46 @@
+version: '3.1'
+
+networks:
+  ghost:
+
+services:
+
+  ghost:
+    image: ghost:4.5-alpine
+    restart: unless-stopped
+    container_name: ghost_app
+    ports:
+      - 1083:2368
+    depends_on:
+      - db
+    environment:
+      database__client: mysql
+      database__connection__host: db
+      database__connection__user: ${DB_USERNAME}
+      database__connection__password: ${DB_PASSWORD}
+      database__connection__database: ${DB_NAME}
+      url: http://localhost:1083
+    volumes:
+      - ./ghost/content:/var/lib/ghost/content
+    networks:
+      - ghost
+
+  db:
+    image: mariadb:10.5
+    restart: unless-stopped
+    container_name: ghost_database
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+    volumes:
+      - ./ghost/mariadb:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-u", "root", "--password=${DB_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ghost
+

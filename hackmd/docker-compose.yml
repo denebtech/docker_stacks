@@ -3,6 +3,7 @@ version: "3"
 services:
   database:
     image: postgres:11.6-alpine
+    container_name: hackmd_db
     environment:
       POSTGRES_USER: ${DB_USERNAME}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
@@ -10,9 +11,15 @@ services:
     volumes:
       - ./hackmd/pgsql:/var/lib/postgresql/data
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   codimd:
     image: hackmdio/hackmd:2.4.1
+    container_name: hackmd_app
     environment:
       CMD_DB_URL: ${DATABASE_URL}
       CMD_USECDN: "false"

@@ -18,6 +18,8 @@ teams work on data easily from anywhere, on any device.
 
 ## HackMD
 
+Real-time collaborate on team/personal/project/technical documentation in markdown. Capture fleeting ideas and formalize tribal knowledge.
+
 - [CodiMD Configuration](https://hackmd.io/c/codimd-documentation/%2Fs%2Fcodimd-configuration)
 - [Creating Users](https://github.com/hackmdio/codimd/blob/master/bin/manage_users)
 - [Manage Note Permission](https://hackmd.io/@codimd/note-permission#Manage-Note-Permission)

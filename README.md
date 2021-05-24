@@ -16,3 +16,8 @@ teams work on data easily from anywhere, on any device.
 - [Home page](https://kanboard.org/)
 - [Documentation (ES)](https://docs.kanboard.org/es/latest/)
 
+## HackMD
+
+- [CodiMD Configuration](https://hackmd.io/c/codimd-documentation/%2Fs%2Fcodimd-configuration)
+- [Creating users](https://github.com/hackmdio/codimd/blob/master/bin/manage_users)
+

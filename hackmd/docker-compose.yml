@@ -1,0 +1,31 @@
+version: "3"
+
+services:
+  database:
+    image: postgres:11.6-alpine
+    environment:
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    volumes:
+      - ./hackmd/pgsql:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  codimd:
+    image: hackmdio/hackmd:2.4.1
+    environment:
+      CMD_DB_URL: ${DATABASE_URL}
+      CMD_USECDN: "false"
+      CMD_ALLOW_ORIGIN: "localhost,127.0.0.1"
+      CMD_SESSION_LIFE: 28800000
+      CMD_ALLOW_PDF_EXPORT: "true"
+      CMD_EMAIL: "true"
+      CMD_ALLOW_EMAIL_REGISTER: "false"
+    depends_on:
+      - database
+    ports:
+      - "1082:3000"
+    volumes:
+      - ./hackmd/data:/home/hackmd/app/public/uploads
+    restart: unless-stopped
+

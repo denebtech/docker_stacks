@@ -1,0 +1,34 @@
+version: '3'
+
+services:
+
+  # ------------------------------------------------------
+  # REDIS CONTAINERS
+  # Docs: https://redis.io/docs/stack/get-started/install/docker/#getting-started
+  # ------------------------------------------------------
+  # redis/redis-stack contains both Redis Stack server and RedisInsight.
+  # This container is best for local development because you can use the embedded RedisInsight to visualize your data.
+  cache-redis-dev:
+    image: redis/redis-stack
+    ports:
+      - 6379:6379
+      - 8001:8001
+    environment:
+      REDIS_ARGS: "--appendonly yes --requirepass redis-stack"
+    volumes:
+      - cache-redis-dev:/data
+
+  # redis/redis-stack-server provides Redis Stack server only.
+  # This container is best for production deployment.
+  cache-redis-prod:
+    image: redis/redis-stack-server
+    ports:
+      - 6379:6379
+    environment:
+      REDIS_ARGS: "--appendonly yes --requirepass redis-stack"
+    volumes:
+      - cache-redis-prod:/data
+
+volumes:
+  cache-redis-dev:
+  cache-redis-prod:

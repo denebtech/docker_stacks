@@ -17,6 +17,8 @@ services:
       REDIS_ARGS: "--appendonly yes --requirepass redis-stack"
     volumes:
       - cache-redis-dev:/data
+    mem_limit: 256m
+    cpus: 0.5
 
   # redis/redis-stack-server provides Redis Stack server only.
   # This container is best for production deployment.
@@ -28,6 +30,8 @@ services:
       REDIS_ARGS: "--appendonly yes --requirepass redis-stack"
     volumes:
       - cache-redis-prod:/data
+    mem_limit: 256m
+    cpus: 0.5
 
 volumes:
   cache-redis-dev:

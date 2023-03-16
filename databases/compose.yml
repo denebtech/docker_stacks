@@ -33,6 +33,105 @@ services:
     mem_limit: 256m
     cpus: 0.5
 
+  # ------------------------------------------------------
+  # POSTGRES DATABASE AND PGADMIN GUI CLIENT
+  # Pgadmin Docs: https://www.pgadmin.org/docs/pgadmin4/latest/container_deployment.html
+  # ------------------------------------------------------
+  postgres:
+    image: postgres:12-alpine
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: <change-me>
+      POSTGRES_USER: postgres
+      POSTGRES_DB: develop
+    expose:
+      - 5432
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  pgadmin:
+    image: dpage/pgadmin4:6.21
+    restart: always
+    ports:
+      - 8080:80
+    environment:
+      PGADMIN_DEFAULT_EMAIL: user@domain.com
+      PGADMIN_DEFAULT_PASSWORD: SuperSecret
+      PGADMIN_CONFIG_ENHANCED_COOKIE_PROTECTION: "True"
+      PGADMIN_CONFIG_CONSOLE_LOG_LEVEL: 10
+    volumes:
+      - pgadmin:/var/lib/pgadmin 
+
+  # ------------------------------------------------------
+  # MYSQL DATABASE AND PHPMYADMIN GUI CLIENT
+  # phpMyAdmin Docs: https://docs.phpmyadmin.net/en/latest/setup.html?highlight=docker#using-docker-compose
+  #
+  # WARNING: phpMyAdmin client haven't user and pass credentials access to GUI.
+  # Don't use this client in production environments
+  # ------------------------------------------------------
+  mysql:
+    image: mysql:5
+    restart: always
+    expose:
+      - 3306
+    environment:
+      MYSQL_RANDOM_ROOT_PASSWORD: "yes"
+      MYSQL_DATABASE: develop
+      MYSQL_PASSWORD: <change-me>
+      MYSQL_USER: mysql
+    volumes:
+      - mysqldata:/var/lib/mysql
+  
+  phpmyadmin:
+    image: phpmyadmin:5.2
+    restart: always
+    environment:
+      PMA_ARBITRARY: 1
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_USER: mysql
+      PMA_PASSWORD: <change-me>
+      PMA_PMADB: develop
+    ports:
+      - 8000:80
+
+  # ------------------------------------------------------
+  # METABASE
+  # Docs: https://www.metabase.com/docs/latest/installation-and-operation/running-metabase-on-docker
+  # ------------------------------------------------------
+  metabase-postgres:
+    image: postgres:12-alpine
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: SuperSecret
+      POSTGRES_USER: metabase
+      POSTGRES_DB: develop
+    expose:
+      - 5432
+    volumes:
+      - metabase-pgdata:/var/lib/postgresql/data
+
+  metabase:
+    image: metabase/metabase:v0.45.2.1
+    restart: always
+    ports:
+      - 3000:3000
+    environment:
+      MB_DB_TYPE: postgres
+      MB_DB_DBNAME: develop
+      MB_DB_PORT: 5432
+      MB_DB_USER: metabase
+      MB_DB_PASS: SuperSecret
+      MB_DB_HOST: metabase-postgres
+      JAVA_TIMEZONE: America/Argentina/Jujuy
+    volumes:
+      - metabase-data:/metabase-data
+
 volumes:
   cache-redis-dev:
   cache-redis-prod:
+  pgdata:
+  mysqldata:
+  pgadmin:
+  metabase-data:
+  metabase-pgdata:

@@ -1,0 +1,13 @@
+version: '3'
+
+services:
+  sonarqube-cli:
+    image: sonarsource/sonar-scanner-cli
+    env_file: .env.sonarcli
+    volumes:
+     - "./:/usr/src"
+
+networks:
+  default:
+    name: sonarnet
+    external: true

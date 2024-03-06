@@ -1,4 +1,5 @@
 .env
+.env.secret
 /kanboard/kanboard/
 /kanboard/mariadb/
 /owncloud/owncloud/
@@ -6,4 +7,3 @@
 /owncloud/redis/
 /hackmd/hackmd/
 /ghost/ghost/
-

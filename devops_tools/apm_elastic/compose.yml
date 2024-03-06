@@ -1,0 +1,83 @@
+version: '3'
+
+services:
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.15
+    restart: unless-stopped
+    environment:
+      - bootstrap.memory_lock=true
+      - cluster.name=elastic.cluster
+      - cluster.routing.allocation.disk.threshold_enabled=true
+      - discovery.type=single-node
+      - http.cors.enabled=true
+      - http.cors.allow-origin='*'
+      - network.host=0.0.0.0
+      - xpack.security.enabled=true
+      - xpack.security.authc.api_key.enabled=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - ELASTIC_USERNAME=$ELASTIC_USERNAME
+      - ELASTIC_PASSWORD=$ELASTIC_PASSWORD
+    ulimits:
+      memlock:
+        hard: -1
+        soft: -1
+    ports:
+      - 9200:9200
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
+    networks:
+      - default
+    healthcheck:
+      interval: 20s
+      retries: 10
+      test: curl -s http://localhost:9200/_cluster/health | grep -vq '"status":"red"'
+
+  apm-server:
+    image: docker.elastic.co/apm/apm-server:7.15.2
+    restart: unless-stopped
+    depends_on:
+      - elasticsearch
+    cap_add: ["CHOWN", "DAC_OVERRIDE", "SETGID", "SETUID"]
+    cap_drop: ["ALL"]
+    ports:
+      - 8200:8200
+    command: >
+      apm-server -e
+        -E apm-server.host=0.0.0.0:8200
+        -E apm-server.rum.enabled=true
+        -E apm-server.auth.secret_token=$APM_TOKEN
+        -E setup.template.settings.index.number_of_replicas=0
+        -E output.elasticsearch.hosts=["elasticsearch:9200"]
+        -E output.elasticsearch.username=$ELASTIC_USERNAME
+        -E output.elasticsearch.password=$ELASTIC_PASSWORD
+        -E queue.mem.events=4096
+        -E max_procs=2
+    networks:
+      - default
+    healthcheck:
+      interval: 10s
+      retries: 12
+      test: curl --write-out 'HTTP %{http_code}' --fail --silent --output /dev/null http://localhost:8200/
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.17.15
+    restart: unless-stopped
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    environment:
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      ELASTICSEARCH_HOSTS: http://elasticsearch:9200
+      ELASTICSEARCH_USERNAME: $ELASTIC_USERNAME
+      ELASTICSEARCH_PASSWORD: $ELASTIC_PASSWORD
+      XPACK_ENCRYPTEDSAVEDOBJECTS_ENCRYPTIONKEY: $XPACK_ENCRYPTEDSAVEDOBJECTS_ENCRYPTIONKEY
+    ports:
+      - 5601:5601
+    healthcheck:
+      interval: 10s
+      retries: 10
+      test: curl --write-out 'HTTP %{http_code}' --fail --silent --output /dev/null http://localhost:5601/api/status
+
+volumes:
+  esdata:
